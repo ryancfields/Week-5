@@ -30,23 +30,23 @@ const isLoggedIn = async (req, res, next) => {
   }
 };
 
-const isAdmin = async (req, res, next) => {
-  const { authorization } = req.headers;
-  try {
-    const token = authorization.split(" ")[1];
-    if (token) {
-      req.token = token;
-      const validToken = await userDAO.validateToken(token);
-      if (validToken.includes("admin")) {
-        next();
-      } else {
-        res.sendStatus(403);
-      }
-    }
-  } catch (e) {
-    next(e);
-  }
-};
+// const isAdmin = async (req, res, next) => {
+//   const { authorization } = req.headers;
+//   try {
+//     const token = authorization.split(" ")[1];
+//     if (token) {
+//       req.token = token;
+//       const validToken = await userDAO.validateToken(token);
+//       if (validToken.includes("admin")) {
+//         next();
+//       } else {
+//         res.sendStatus(403);
+//       }
+//     }
+//   } catch (e) {
+//     next(e);
+//   }
+// };
 
 // Create
 router.post("/", isLoggedIn, async (req, res, next) => {
@@ -73,13 +73,13 @@ router.get("/", isLoggedIn, async (req, res, next) => {
   try {
     const { authorization } = req.headers;
     const token = authorization.split(" ")[1];
-    const validToken = await userDAO.validateTokenGetID(token);
+    const user = await userDAO.getUserInfo(token);
 
-    if (isAdmin) {
-      const findOrders = await itemDAO.get();
+    if (user.roles.includes("admin")) {
+      const findOrders = await orderDAO.get();
       return res.status(200).json(findOrders);
     } else {
-      const findOrders = await itemDAO.getByID(validToken);
+      const findOrders = await orderDAO.getUserID(user._id);
       return res.status(200).json(findOrders);
     }
   } catch (e) {
@@ -89,18 +89,25 @@ router.get("/", isLoggedIn, async (req, res, next) => {
 
 router.get("/:id", isLoggedIn, async (req, res, next) => {
   try {
+    const orderId = req.params.id;
     const { authorization } = req.headers;
     const token = authorization.split(" ")[1];
-    const validToken = await userDAO.validateTokenGetID(token);
+    const user = await userDAO.getUserInfo(token);
+    const userID = user._id;
 
-    if (isAdmin) {
-    const findItem = await itemDAO.getByID(validToken);
-    return res.status(200).json(findItem);
-    } else {
-      const findOrders = await itemDAO.getByID(validToken);
+    const findOrders = await orderDAO.getOrderId(orderId);
+
+    console.log(findOrders.userId, userID);
+
+    if (user.roles.includes("admin")) {
       return res.status(200).json(findOrders);
+    } else if (findOrders.userId.toString() == userID.toString()) {
+      return res.status(200).json(findOrders);
+    } 
 
-    }
+    return res.status(404).json();
+
+    
   } catch (e) {
     next(e);
   }

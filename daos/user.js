@@ -63,3 +63,10 @@ module.exports.validateToken = async (token) => {
     return validateToken._id
 
 };
+
+//All User Info
+module.exports.getUserInfo = async (token) => {
+  const userInfo = await jwt.verify(token, jwtKey);
+  return userInfo
+
+};

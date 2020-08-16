@@ -14,12 +14,13 @@ module.exports.updateID = async (item) => {
   return await Item.updateOne(item);
 };
 
+//Why tis?
 module.exports.getID = async (id) => {
-  return await Item.findOne({id: id }).lean();
+  return await Item.findOne({ id: id }).lean();
 };
 
 module.exports.getByID = async (id) => {
-  return await Item.findOne({_id: id }).lean();
+  return await Item.findOne({ _id: id }).lean();
 };
 
 module.exports.get = async () => {

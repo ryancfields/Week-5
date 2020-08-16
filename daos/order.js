@@ -1,5 +1,6 @@
 const Order = require("../models/order");
 const Item = require("../models/item");
+const mongoose = require("mongoose");
 
 module.exports = {};
 
@@ -19,8 +20,8 @@ module.exports.updateID = async (order) => {
   return await Order.updateOne(order);
 };
 
-module.exports.getID = async (id) => {
-  return await Order.findOne({ order: id }).lean();
+module.exports.getByID = async (id) => {
+  return await Order.find({ _id: id }).lean();
 };
 
 module.exports.getUserID = async (id) => {
@@ -29,4 +30,32 @@ module.exports.getUserID = async (id) => {
 
 module.exports.get = async () => {
   return await Order.find().lean();
+};
+
+module.exports.getOrderId = async (orderId) => {
+  const order = await Order.aggregate([
+    { $match: { _id: mongoose.Types.ObjectId(orderId) } },
+    {
+      $lookup: {
+        from: "items",
+        localField: "items",
+        foreignField: "_id",
+        as: "items",
+      },
+    },
+    {
+      $project: {
+        "items.price": 1,
+        "items.title": 1,
+        total: 1,
+        userId: 1,
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+      },
+    },
+  ]);
+  return order[0];
 };
