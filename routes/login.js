@@ -4,28 +4,28 @@ const userDAO = require("../daos/user");
 const { body, validationResult } = require("express-validator");
 
 const isLoggedIn = async (req, res, next) => {
-    const { authorization } = req.headers;
-    try {
-      if (authorization) {
-        const token = authorization.split(" ")[1];
-        if (token) {
-          req.token = token;
-          const validToken = await userDAO.validateToken(token);
-          if (validToken) {
-              next();
-          } else {
-            res.sendStatus(401);
-          }
+  const { authorization } = req.headers;
+  try {
+    if (authorization) {
+      const token = authorization.split(" ")[1];
+      if (token) {
+        req.token = token;
+        const validToken = await userDAO.validateToken(token);
+        if (validToken) {
+          next();
         } else {
           res.sendStatus(401);
         }
       } else {
         res.sendStatus(401);
       }
-    } catch (e) {
-      next(e);
+    } else {
+      res.sendStatus(401);
     }
-  };
+  } catch (e) {
+    next(e);
+  }
+};
 
 router.post(
   "/signup",
@@ -53,7 +53,10 @@ router.post(
       return res.status(400).json({ errors: errors.array() });
     }
     try {
-      const issueToken = await userDAO.issueToken(req.body, req.headers.authorization);
+      const issueToken = await userDAO.issueToken(
+        req.body,
+        req.headers.authorization
+      );
       if (!issueToken) {
         res.sendStatus(401);
       } else {
@@ -74,13 +77,12 @@ router.post(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    user = req.body
-    token = req.headers.authorization.split(" ")[1]
+    user = req.body;
+    token = req.headers.authorization.split(" ")[1];
 
     try {
       const updatedPassword = await userDAO.updatePassword(user, token);
-      return res.json(updatedPassword)
-    
+      return res.json(updatedPassword);
     } catch (e) {
       next(e);
     }

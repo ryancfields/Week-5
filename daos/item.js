@@ -26,5 +26,3 @@ module.exports.getByID = async (id) => {
 module.exports.get = async () => {
   return await Item.find().lean();
 };
-
-

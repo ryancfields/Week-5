@@ -103,11 +103,9 @@ router.get("/:id", isLoggedIn, async (req, res, next) => {
       return res.status(200).json(findOrders);
     } else if (findOrders.userId.toString() == userID.toString()) {
       return res.status(200).json(findOrders);
-    } 
+    }
 
     return res.status(404).json();
-
-    
   } catch (e) {
     next(e);
   }

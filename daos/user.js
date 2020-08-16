@@ -19,7 +19,7 @@ module.exports.findByEmail = async (email) => {
 
 module.exports.getById = async (userId) => {
   return await User.findOne({ _id: userId }).lean();
-}
+};
 
 module.exports.issueToken = async (user) => {
   const { email, password } = user;
@@ -44,29 +44,28 @@ module.exports.issueToken = async (user) => {
 };
 
 module.exports.updatePassword = async (user, token) => {
-    decodeToken = jwt.decode(token, jwtKey);
-    email = decodeToken.email
-    
-    user.password = await bcrypt.hash(user.password, 1);
-    return await User.updateOne({ email : email }, { $set: { 'password' : user.password}});
+  decodeToken = jwt.decode(token, jwtKey);
+  email = decodeToken.email;
 
+  user.password = await bcrypt.hash(user.password, 1);
+  return await User.updateOne(
+    { email: email },
+    { $set: { password: user.password } }
+  );
 };
 
 module.exports.validateToken = async (token) => {
-        const validateToken = await jwt.verify(token, jwtKey);
-        return validateToken.roles
+  const validateToken = await jwt.verify(token, jwtKey);
+  return validateToken.roles;
+};
 
-  };
-  
-  module.exports.validateTokenGetID = async (token) => {
-    const validateToken = await jwt.verify(token, jwtKey);
-    return validateToken._id
-
+module.exports.validateTokenGetID = async (token) => {
+  const validateToken = await jwt.verify(token, jwtKey);
+  return validateToken._id;
 };
 
 //All User Info
 module.exports.getUserInfo = async (token) => {
   const userInfo = await jwt.verify(token, jwtKey);
-  return userInfo
-
+  return userInfo;
 };
