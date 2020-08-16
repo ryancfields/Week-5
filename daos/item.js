@@ -14,7 +14,6 @@ module.exports.updateID = async (item) => {
   return await Item.updateOne(item);
 };
 
-//Why tis?
 module.exports.getID = async (id) => {
   return await Item.findOne({ id: id }).lean();
 };
